@@ -6,11 +6,11 @@ const app = express();
 const PORT = 3000;
 
 app.use(
-    cors({
-      origin: "http://localhost:4200", // Reemplázalo con la URL de tu frontend
-      credentials: true, // Permite el envío de cookies de sesión
-    })
-  );
+  cors({
+    origin: "http://localhost:4200", // Reemplázalo con la URL de tu frontend
+    credentials: true, // Permite el envío de cookies de sesión
+  })
+);
 
 app.use(express.json());
 app.use(
@@ -24,97 +24,115 @@ app.use(
 const DB_FILE = "db.json";
 
 
-const cargarDatos = () => {
+const loadData = () => {
   if (fs.existsSync(DB_FILE)) {
     return JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
   }
-  return { productos: [], usuarios: [{ id: 1, usuario: "admin", contraseña: "admin", rol: "admin" }] };
+  return {
+    products: [
+      { "id": 1, "name": "Smartphone Samsung Galaxy S23", "price": 799.99, "stock": 15 },
+      { "id": 2, "name": "Laptop Dell XPS 15", "price": 1299.99, "stock": 10 },
+      { "id": 3, "name": "Auriculares Sony WH-1000XM5", "price": 349.99, "stock": 20 },
+      { "id": 4, "name": "Monitor LG UltraGear 27\"", "price": 499.99, "stock": 8 },
+      { "id": 5, "name": "Teclado mecánico Logitech G Pro X", "price": 129.99, "stock": 30 },
+      { "id": 6, "name": "Mouse inalámbrico Razer Basilisk X", "price": 69.99, "stock": 25 },
+      { "id": 7, "name": "Tablet iPad Air 2022", "price": 599.99, "stock": 12 },
+      { "id": 8, "name": "Smartwatch Apple Watch Series 9", "price": 429.99, "stock": 18 },
+      { "id": 9, "name": "Cámara Sony Alpha A7 III", "price": 1999.99, "stock": 5 },
+      { "id": 10, "name": "Consola PlayStation 5", "price": 499.99, "stock": 7 }
+    ],
+    users: [
+      { id: 1, user: "admin", password: "admin", rol: "admin" },
+      { id: 2, user: "manager", password: "manager", rol: "manager" },
+      { id: 3, user: "seller", password: "seller", rol: "seller" }
+    ]
+  };
 };
 
-const guardarDatos = () => {
-  fs.writeFileSync(DB_FILE, JSON.stringify({ productos, usuarios }, null, 2));
+const saveData = () => {
+  fs.writeFileSync(DB_FILE, JSON.stringify({ products, users }, null, 2));
 };
 
-let { productos, usuarios } = cargarDatos();
+let { products, users } = loadData();
 
-const autenticar = (req, res, next) => {
-  if (req.session.usuario && req.session.usuario.rol === "admin") {
+const authenticate = (req, res, next) => {
+  if (req.session.user && req.session.user.rol === "admin") {
     next();
   } else {
     res.status(401).json({ mensaje: "No autorizado" });
   }
 };
 
-// Listar productos
-app.get("/productos", (req, res) => {
-  res.json(productos);
+// Listar products
+app.get("/products", (req, res) => {
+  res.json(products);
 });
 
-// Obtener un producto por ID
-app.get("/productos/:id", (req, res) => {
-  const producto = productos.find((p) => p.id === parseInt(req.params.id));
-  producto ? res.json(producto) : res.status(404).json({ mensaje: "Producto no encontrado" });
+// Obtener un product por ID
+app.get("/products/:id", (req, res) => {
+  const product = products.find((p) => p.id === parseInt(req.params.id));
+  product ? res.json(product) : res.status(404).json({ mensaje: "Producto no encontrado" });
 });
 
-// Añadir producto (requiere autenticación)
-app.post("/productos", autenticar, (req, res) => {
-  const nuevoProducto = { id: productos.length + 1, ...req.body };
-  productos.push(nuevoProducto);
-  guardarDatos();
-  res.status(201).json(nuevoProducto);
+// Añadir product (requiere autenticación)
+app.post("/products", authenticate, (req, res) => {
+  const newProduct = { id: products.length + 1, ...req.body };
+  products.push(newProduct);
+  saveData();
+  res.status(201).json(newProduct);
 });
 
-// Modificar producto (requiere autenticación)
-app.put("/productos/:id", autenticar, (req, res) => {
-  let producto = productos.find((p) => p.id === parseInt(req.params.id));
-  if (producto) {
-    Object.assign(producto, req.body);
-    guardarDatos();
-    res.json(producto);
+// Modificar product (requiere autenticación)
+app.put("/products/:id", authenticate, (req, res) => {
+  let product = products.find((p) => p.id === parseInt(req.params.id));
+  if (product) {
+    Object.assign(product, req.body);
+    saveData();
+    res.json(product);
   } else {
     res.status(404).json({ mensaje: "Producto no encontrado" });
   }
 });
 
 // Modificar stock
-app.patch("/productos/:id/stock", (req, res) => {
-  let producto = productos.find((p) => p.id === parseInt(req.params.id));
-  if (producto) {
-    producto.stock = req.body.stock;
-    guardarDatos();
-    res.json(producto);
+app.patch("/products/:id/stock", (req, res) => {
+  let product = productos.find((p) => p.id === parseInt(req.params.id));
+  if (product) {
+    product.stock = req.body.stock;
+    saveData();
+    res.json(product);
   } else {
     res.status(404).json({ mensaje: "Producto no encontrado" });
   }
 });
 
 // Borrar producto (requiere autenticación)
-app.delete("/productos/:id", autenticar, (req, res) => {
+app.delete("/productos/:id", authenticate, (req, res) => {
   productos = productos.filter((p) => p.id !== parseInt(req.params.id));
-  guardarDatos();
+  saveData();
   res.json({ mensaje: "Producto eliminado" });
 });
 
 // Listar usuarios (requiere autenticación)
-app.get("/usuarios", autenticar, (req, res) => {
-  res.json(usuarios);
+app.get("/users", authenticate, (req, res) => {
+  res.json(users);
 });
 
 // Añadir usuario (requiere autenticación)
-app.post("/usuarios", autenticar, (req, res) => {
-  const nuevoUsuario = { id: usuarios.length + 1, ...req.body };
-  usuarios.push(nuevoUsuario);
-  guardarDatos();
+app.post("/users", authenticate, (req, res) => {
+  const nuevoUsuario = { id: users.length + 1, ...req.body };
+  users.push(nuevoUsuario);
+  saveData();
   res.status(201).json(nuevoUsuario);
 });
 
 // Modificar usuario (requiere autenticación)
-app.put("/usuarios/:id", autenticar, (req, res) => {
-  let usuario = usuarios.find((u) => u.id === parseInt(req.params.id));
-  if (usuario) {
-    Object.assign(usuario, req.body);
-    guardarDatos();
-    res.json(usuario);
+app.put("/users/:id", authenticate, (req, res) => {
+  let user = users.find((u) => u.id === parseInt(req.params.id));
+  if (user) {
+    Object.assign(user, req.body);
+    saveData();
+    res.json(user);
   } else {
     res.status(404).json({ mensaje: "Usuario no encontrado" });
   }
@@ -122,11 +140,12 @@ app.put("/usuarios/:id", autenticar, (req, res) => {
 
 // Inicio de sesión
 app.post("/login", (req, res) => {
-  const { usuario, contraseña } = req.body;
-  const user = usuarios.find((u) => u.usuario === usuario && u.contraseña === contraseña);
-  if (user) {
-    req.session.usuario = user;
-    res.json({ mensaje: "Login exitoso" });
+  const { user, password } = req.body;
+  const userDB = users.find((u) => u.user === user && u.password === password);
+  if (userDB) {
+    req.session.user = userDB;
+
+    res.json({ mensaje: "Login exitoso", user: { user: userDB.user, rol: userDB.rol } });
   } else {
     res.status(401).json({ mensaje: "Credenciales incorrectas" });
   }
@@ -140,12 +159,12 @@ app.post("/logout", (req, res) => {
 
 // Verificar sesión activa
 app.get("/auth/status", (req, res) => {
-    if (req.session.usuario) {
-      res.json({ autenticado: true, usuario: req.session.usuario });
-    } else {
-      res.json({ autenticado: false });
-    }
-  });
+  if (req.session.user) {
+    res.json({ autenticado: true, user: req.session.user });
+  } else {
+    res.status(401).json({ autenticado: false });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

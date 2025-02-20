@@ -1,17 +1,84 @@
 {
-  "productos": [],
-  "usuarios": [
+  "products": [
     {
       "id": 1,
-      "usuario": "admin",
-      "contraseña": "admin",
+      "name": "Smartphone Samsung Galaxy S23",
+      "price": 799.99,
+      "stock": 15
+    },
+    {
+      "id": 2,
+      "name": "Laptop Dell XPS 15",
+      "price": 1299.99,
+      "stock": 10
+    },
+    {
+      "id": 3,
+      "name": "Auriculares Sony WH-1000XM5",
+      "price": 349.99,
+      "stock": 20
+    },
+    {
+      "id": 4,
+      "name": "Monitor LG UltraGear 27\"",
+      "price": 499.99,
+      "stock": 8
+    },
+    {
+      "id": 5,
+      "name": "Teclado mecánico Logitech G Pro X",
+      "price": 129.99,
+      "stock": 30
+    },
+    {
+      "id": 6,
+      "name": "Mouse inalámbrico Razer Basilisk X",
+      "price": 69.99,
+      "stock": 25
+    },
+    {
+      "id": 7,
+      "name": "Tablet iPad Air 2022",
+      "price": 599.99,
+      "stock": 12
+    },
+    {
+      "id": 8,
+      "name": "Smartwatch Apple Watch Series 9",
+      "price": 429.99,
+      "stock": 18
+    },
+    {
+      "id": 9,
+      "name": "Cámara Sony Alpha A7 III",
+      "price": 1999.99,
+      "stock": 5
+    },
+    {
+      "id": 10,
+      "name": "Consola PlayStation 5",
+      "price": 499.99,
+      "stock": 7
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "user": "admin",
+      "password": "admin",
       "rol": "admin"
     },
     {
       "id": 2,
-      "usuario": "joadelvia",
-      "contraseña": "123456",
-      "rol": "user"
+      "user": "manager",
+      "password": "manager",
+      "rol": "manager"
+    },
+    {
+      "id": 3,
+      "user": "seller",
+      "password": "seller",
+      "rol": "seller"
     }
   ]
 }
