@@ -1,0 +1,17 @@
+{
+  "productos": [],
+  "usuarios": [
+    {
+      "id": 1,
+      "usuario": "admin",
+      "contraseña": "admin",
+      "rol": "admin"
+    },
+    {
+      "id": 2,
+      "usuario": "joadelvia",
+      "contraseña": "123456",
+      "rol": "user"
+    }
+  ]
+}
