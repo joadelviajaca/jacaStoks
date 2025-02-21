@@ -96,7 +96,7 @@ app.put("/products/:id", authenticate, (req, res) => {
 
 // Modificar stock
 app.patch("/products/:id/stock", (req, res) => {
-  let product = productos.find((p) => p.id === parseInt(req.params.id));
+  let product = products.find((p) => p.id === parseInt(req.params.id));
   if (product) {
     product.stock = req.body.stock;
     saveData();
