@@ -55,13 +55,16 @@ const saveData = () => {
 
 let { products, users } = loadData();
 
-const authenticate = (req, res, next) => {
-  if (req.session.user && req.session.user.rol === "admin") {
-    next();
-  } else {
-    res.status(401).json({ mensaje: "No autorizado" });
-  }
-};
+const authenticate = (authorizedRoles = ['admin']) => {
+  
+  return (req, res, next) => {
+    if (req.session.user && authorizedRoles.includes(req.session.user.rol)) {
+      next();
+    } else {
+      res.status(401).json({ mensaje: "No autorizado" });
+    }
+  };
+} 
 
 // Listar products
 app.get("/products", (req, res) => {
@@ -75,7 +78,7 @@ app.get("/products/:id", (req, res) => {
 });
 
 // Añadir product (requiere autenticación)
-app.post("/products", authenticate, (req, res) => {
+app.post("/products", authenticate(['admin', 'manager']), (req, res) => {
   const newProduct = { id: products.length + 1, ...req.body };
   products.push(newProduct);
   saveData();
@@ -83,7 +86,7 @@ app.post("/products", authenticate, (req, res) => {
 });
 
 // Modificar product (requiere autenticación)
-app.put("/products/:id", authenticate, (req, res) => {
+app.put("/products/:id", authenticate(['manager', 'admin']), (req, res) => {
   let product = products.find((p) => p.id === parseInt(req.params.id));
   if (product) {
     Object.assign(product, req.body);
@@ -95,7 +98,7 @@ app.put("/products/:id", authenticate, (req, res) => {
 });
 
 // Modificar stock
-app.patch("/products/:id/stock", (req, res) => {
+app.patch("/products/:id/stock", authenticate(['manager', 'seller', 'admin']), (req, res) => {
   let product = products.find((p) => p.id === parseInt(req.params.id));
   if (product) {
     product.stock = req.body.stock;
@@ -107,19 +110,19 @@ app.patch("/products/:id/stock", (req, res) => {
 });
 
 // Borrar producto (requiere autenticación)
-app.delete("/products/:id", authenticate, (req, res) => {
-  productos = productos.filter((p) => p.id !== parseInt(req.params.id));
+app.delete("/products/:id", authenticate(['manager', 'admin']), (req, res) => {
+  products = products.filter((p) => p.id !== parseInt(req.params.id));
   saveData();
   res.json({ mensaje: "Producto eliminado" });
 });
 
 // Listar usuarios (requiere autenticación)
-app.get("/users", authenticate, (req, res) => {
+app.get("/users", authenticate(['admin']), (req, res) => {
   res.json(users);
 });
 
 // Añadir usuario (requiere autenticación)
-app.post("/users", authenticate, (req, res) => {
+app.post("/users", authenticate(['admin']), (req, res) => {
   const nuevoUsuario = { id: users.length + 1, ...req.body };
   users.push(nuevoUsuario);
   saveData();
@@ -127,7 +130,7 @@ app.post("/users", authenticate, (req, res) => {
 });
 
 // Modificar usuario (requiere autenticación)
-app.put("/users/:id", authenticate, (req, res) => {
+app.put("/users/:id", authenticate(['admin']), (req, res) => {
   let user = users.find((u) => u.id === parseInt(req.params.id));
   if (user) {
     Object.assign(user, req.body);
