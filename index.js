@@ -107,7 +107,7 @@ app.patch("/products/:id/stock", (req, res) => {
 });
 
 // Borrar producto (requiere autenticación)
-app.delete("/productos/:id", authenticate, (req, res) => {
+app.delete("/products/:id", authenticate, (req, res) => {
   productos = productos.filter((p) => p.id !== parseInt(req.params.id));
   saveData();
   res.json({ mensaje: "Producto eliminado" });
